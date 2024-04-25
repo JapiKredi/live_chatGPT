@@ -1,3 +1,4 @@
+# Please run pip install --upgrade openai in your terminal to install the latest version of the OpenAI Python library.
 from openai import OpenAI
 import streamlit as st
 from dotenv import load_dotenv
@@ -6,7 +7,7 @@ import shelve
 
 load_dotenv()
 
-st.title("Chatgpt_Live")
+st.title("Chatgpt_Replica")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = "🤖"
