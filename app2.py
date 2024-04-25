@@ -1,4 +1,4 @@
-import openai
+from openai import OpenAI
 import streamlit as st
 from dotenv import load_dotenv
 import os
@@ -6,25 +6,28 @@ import shelve
 
 load_dotenv()
 
-st.title("Chatgpt_Replica")
+st.title("Chatgpt_Live")
 
 USER_AVATAR = "👤"
 BOT_AVATAR = "🤖"
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Ensure openai_model is initialized in session state
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-3.5-turbo"
+
 
 # Load chat history from shelve file
 def load_chat_history():
     with shelve.open("chat_history") as db:
         return db.get("messages", [])
 
+
 # Save chat history to shelve file
 def save_chat_history(messages):
     with shelve.open("chat_history") as db:
         db["messages"] = messages
+
 
 # Initialize or load chat history
 if "messages" not in st.session_state:
@@ -51,13 +54,12 @@ if prompt := st.chat_input("How can I help?"):
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         message_placeholder = st.empty()
         full_response = ""
-
-        for response in openai.ChatCompletion.create(
+        for response in client.chat.completions.create(
             model=st.session_state["openai_model"],
             messages=st.session_state["messages"],
             stream=True,
         ):
-            full_response += response['choices'][0]['message']['content'] or ""
+            full_response += response.choices[0].delta.content or ""
             message_placeholder.markdown(full_response + "|")
         message_placeholder.markdown(full_response)
     st.session_state.messages.append({"role": "assistant", "content": full_response})
